@@ -9,7 +9,6 @@
             --bg-color: #f4f6f9;
             --card-bg: #ffffff;
             --primary-color: #2563eb;
-            --success-color: #16a34a;
             --text-color: #1f2937;
         }
         body {
@@ -54,14 +53,6 @@
             margin-top: 10px;
         }
         button:disabled { background-color: #9ca3af; }
-        .vip-card {
-            background-color: #fef3c7;
-            border: 1px solid #f59e0b;
-            padding: 12px;
-            border-radius: 6px;
-            text-align: center;
-            margin-top: 15px;
-        }
         .ad-banner {
             margin-top: 30px;
             width: 100%;
@@ -96,21 +87,14 @@
 
     <!-- 2. Fotos hochladen -->
     <div class="section">
-        <label for="fileInput">Виберіть фото з жовтим маркером:</label>
+        <label for="fileInput">Виберіть фото (максимум 10 фото):</label>
         <input type="file" id="fileInput" multiple accept="image/*">
-        <small id="limitNotice" style="color: #d97706; display:block; margin-top:4px;">
-            Безкоштовний режим: максимум 3 фото за раз.
+        <small id="limitNotice" style="color: #2563eb; display:block; margin-top:4px;">
+            Рекомендовано: до 10 фото за один раз для комфортної роботи.
         </small>
     </div>
 
     <button id="processBtn" onclick="processImages()">Обробити та завантажити файли</button>
-
-    <!-- VIP-Sektion -->
-    <div class="vip-card">
-        <h3>🚀 Потрібно обробити цілу книжку?</h3>
-        <p style="font-size:0.85rem; margin: 6px 0;">Отримайте VIP-доступ за 3 € / 30 днів для пакетного завантаження 50+ сторінок за один раз.</p>
-        <button style="background-color: var(--success-color);" onclick="alert('Перехід на оплату 3 €')">Розблокувати VIP (3 €)</button>
-    </div>
 </div>
 
 <!-- Statischer Werbebanner -->
@@ -119,13 +103,8 @@
 </div>
 
 <script>
-    const keyInput = document.getElementById('apiKey');
-    keyInput.value = localStorage.getItem('user_gemini_key') || '';
-    keyInput.addEventListener('change', () => {
-        localStorage.setItem('user_gemini_key', keyInput.value);
-    });
-
     function processImages() {
+        const keyInput = document.getElementById('apiKey');
         const key = keyInput.value.trim();
         const files = document.getElementById('fileInput').files;
 
@@ -139,10 +118,8 @@
             return;
         }
 
-        const isVIP = false; 
-
-        if (!isVIP && files.length > 3) {
-            alert('У безкоштовному режимі можна завантажувати максимум 3 фото за раз. Придбайте VIP для обробки книжок!');
+        if (files.length > 10) {
+            alert('Будь ласка, виберіть не більше 10 фотографій за один раз для стабільної роботи.');
             return;
         }
 
