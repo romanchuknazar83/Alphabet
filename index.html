@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Hammer - Text & Audio Extractor</title>
+    <style>
+        :root {
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --primary-color: #2563eb;
+            --success-color: #16a34a;
+            --text-color: #1f2937;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            box-sizing: border-box;
+        }
+        h1 { text-align: center; font-size: 1.5rem; margin-bottom: 20px; }
+        .section { margin-bottom: 20px; }
+        label { display: block; font-weight: bold; margin-bottom: 6px; font-size: 0.9rem; }
+        input[type="password"], input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        button:disabled { background-color: #9ca3af; }
+        .vip-card {
+            background-color: #fef3c7;
+            border: 1px solid #f59e0b;
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            margin-top: 15px;
+        }
+        .ad-banner {
+            margin-top: 30px;
+            width: 100%;
+            max-width: 500px;
+            height: 90px;
+            background-color: #e5e7eb;
+            border: 2px dashed #9ca3af;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            font-size: 0.85rem;
+            border-radius: 8px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🔨 The Hammer</h1>
+
+    <!-- 1. API-Schlüssel -->
+    <div class="section">
+        <label for="apiKey">Особистий Google Gemini API Key:</label>
+        <input type="password" id="apiKey" placeholder="Вставте свій ключ сюди">
+        <small style="display:block; margin-top:4px; color:#6b7280;">
+            Отримайте безкоштовно у <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a>
+        </small>
+    </div>
+
+    <!-- 2. Fotos hochladen -->
+    <div class="section">
+        <label for="fileInput">Виберіть фото з жовтим маркером:</label>
+        <input type="file" id="fileInput" multiple accept="image/*">
+        <small id="limitNotice" style="color: #d97706; display:block; margin-top:4px;">
+            Безкоштовний режим: максимум 3 фото за раз.
+        </small>
+    </div>
+
+    <button id="processBtn" onclick="processImages()">Обробити та завантажити файли</button>
+
+    <!-- VIP-Sektion -->
+    <div class="vip-card">
+        <h3>🚀 Потрібно обробити цілу книжку?</h3>
+        <p style="font-size:0.85rem; margin: 6px 0;">Отримайте VIP-доступ за 3 € / 30 днів для пакетного завантаження 50+ сторінок за один раз.</p>
+        <button style="background-color: var(--success-color);" onclick="alert('Перехід на оплату 3 €')">Розблокувати VIP (3 €)</button>
+    </div>
+</div>
+
+<!-- Statischer Werbebanner -->
+<div class="ad-banner">
+    Партнерський блок / Реклама мовних шкіл
+</div>
+
+<script>
+    const keyInput = document.getElementById('apiKey');
+    keyInput.value = localStorage.getItem('user_gemini_key') || '';
+    keyInput.addEventListener('change', () => {
+        localStorage.setItem('user_gemini_key', keyInput.value);
+    });
+
+    function processImages() {
+        const key = keyInput.value.trim();
+        const files = document.getElementById('fileInput').files;
+
+        if (!key) {
+            alert('Будь ласка, вкажіть ваш власний безкоштовний Google API Key!');
+            return;
+        }
+
+        if (files.length === 0) {
+            alert('Виберіть хоча б одне фото!');
+            return;
+        }
+
+        const isVIP = false; 
+
+        if (!isVIP && files.length > 3) {
+            alert('У безкоштовному режимі можна завантажувати максимум 3 фото за раз. Придбайте VIP для обробки книжок!');
+            return;
+        }
+
+        alert(`Розпочато обробку ${files.length} фото через ваш ключ Google.`);
+    }
+</script>
+
+</body>
+</html>
