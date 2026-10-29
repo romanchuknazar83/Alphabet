@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alphabet - Text & Audio Extractor</title>
+    <style>
+        :root {
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --primary-color: #2563eb;
+            --text-color: #1f2937;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            box-sizing: border-box;
+        }
+        h1 { 
+            text-align: center; 
+            font-size: 2rem; 
+            margin-bottom: 20px; 
+            letter-spacing: 2px;
+        }
+        /* Стилі для різнокольорових літер */
+        .letter-a1 { color: #ef4444; } /* Червоний */
+        .letter-l  { color: #f59e0b; } /* Помаранчевий */
+        .letter-p  { color: #10b981; } /* Зелений */
+        .letter-h  { color: #06b6d4; } /* Блакитний */
+        .letter-a2 { color: #3b82f6; } /* Синій */
+        .letter-b  { color: #8b5cf6; } /* Фіолетовий */
+        .letter-e  { color: #ec4899; } /* Рожевий */
+        .letter-t  { color: #f43f5e; } /* Малиновий */
+
+        .section { margin-bottom: 20px; }
+        label { display: block; font-weight: bold; margin-bottom: 6px; font-size: 0.9rem; }
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        button:disabled { background-color: #9ca3af; }
+        #status {
+            margin-top: 15px;
+            font-weight: bold;
+            text-align: center;
+            color: #2563eb;
+        }
+        #result {
+            margin-top: 15px;
+            padding: 12px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-size: 0.95rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .ad-banner {
+            margin-top: 30px;
+            width: 100%;
+            max-width: 500px;
+            height: 90px;
+            background-color: #e5e7eb;
+            border: 2px dashed #9ca3af;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            font-size: 0.85rem;
+            border-radius: 8px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>
+        📚 
+        <span class="letter-a1">A</span><span class="letter-l">L</span><span class="letter-p">P</span><span class="letter-h">H</span><span class="letter-a2">A</span><span class="letter-b">B</span><span class="letter-e">E</span><span class="letter-t">T</span>
+    </h1>
+    
+    <div class="section">
+        <label for="fileInput">Виберіть фото (максимум 10 фото):</label>
+        <input type="file" id="fileInput" multiple accept="image/*">
+        <small id="limitNotice" style="color: #2563eb; display:block; margin-top:4px;">
+            Рекомендовано: до 10 фото за один раз для комфортної роботи.
+        </small>
+    </div>
+
+    <button id="processBtn" onclick="processImages()">Обробити та завантажити файли</button>
+    
+    <div id="status"></div>
+    <div id="result" style="display:none;"></div>
+</div>
+
+<div class="ad-banner">
+    Партнерський блок / Реклама мовних шкіл
+</div>
+
+<script>
+    // ВСТАВ СВІЙ API-КЛЮЧ GEMINI ЗАМІСТЬ ТЕКСТУ В ЛАПКАХ:
+    const API_KEY = "AQ.Ab8RN6LJ6hP7CNhkogR_U9AE1VFJz8yH6SINDsWkhl8VpBiffA";
+
+    async function fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result.split(',')[1]);
+            reader.onerror = error => reject(error);
+        });
+    }
+
+    async function processImages() {
+        const fileInput = document.getElementById('fileInput');
+        const files = fileInput.files;
+        const statusDiv = document.getElementById('status');
+        const resultDiv = document.getElementById('result');
+        const btn = document.getElementById('processBtn');
+
+        if (files.length === 0) {
+            alert('Виберіть хоча б одне фото!');
+            return;
+        }
+
+        if (files.length > 10) {
+            alert('Будь ласка, виберіть не більше 10 фотографій за один раз.');
+            return;
+        }
+
+        if (!API_KEY || API_KEY === "AQ.Ab8RN6LJ6hP7CNhkogR_U9AE1VFJz8yH6SINDsWkhl8VpBiffA") {
+            alert('Помилка: вставте свій Gemini API Key у код.');
+            return;
+        }
+
+        btn.disabled = true;
+        statusDiv.innerText = "Обробка зображень... Зачекайте...";
+        resultDiv.style.display = "none";
+        resultDiv.innerText = "";
+
+        try {
+            let combinedText = "";
+
+            for (let i = 0; i < files.length; i++) {
+                statusDiv.innerText = `Обробка фото ${i + 1} з ${files.length}...`;
+                const base64Data = await fileToBase64(files[i]);
+
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [
+                                { text: "Розпізнай увесь текст із цього зображення максимально точно." },
+                                { inline_data: { mime_type: files[i].type, data: base64Data } }
+                            ]
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+                const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "Текст не знайдено.";
+                combinedText += `--- Фото ${i + 1} ---\n` + text + "\n\n";
+            }
+
+            statusDiv.innerText = "Успішно оброблено!";
+            resultDiv.innerText = combinedText;
+            resultDiv.style.display = "block";
+        } catch (err) {
+            console.error(err);
+            statusDiv.innerText = "Помилка при обробці. Перевірте підключення до інтернету.";
+        } finally {
+            btn.disabled = false;
+        }
+    }
+</script>
+
+</body>
+</html>
